@@ -9,7 +9,7 @@ services:
       - NET_RAW
     volumes:
       - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro # config wireguard
-      - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh:ro           # clé SSH pour auth SFTP sans mot de passe
+      - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh              # clé SSH pour auth SFTP sans mot de passe
       - /media/HDD-Storage:/hdd-01:ro                                     # accès disque local
       - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup        # logs persistants
 
@@ -23,6 +23,8 @@ services:
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
           chmod +x /backup.sh
+          chmod 700 /root/.ssh
+          chmod 600 /root/.ssh/*
           # backup à midi
           echo '0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1' | crontab -
           # nettoyage des logs > 7 jours à 1h du matin

@@ -1,6 +1,6 @@
 #!/bin/bash
-SOURCE="/hdd-01/ton-dossier/"
-DEST="bkp_ronan@192.168.1.210:/backups/"
+SOURCE="/hdd-01/photo/immich"
+DEST="bkp_ronan@192.168.1.210:/backups/immich/"
 
 # TOKEN et CHAT_ID injectés via variables d'environment
 send_telegram() {
