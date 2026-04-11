@@ -11,16 +11,25 @@ services:
       - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro # config wireguard
       - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh:ro           # clé SSH pour auth SFTP sans mot de passe
       - /media/HDD-Storage:/hdd-01:ro                                     # accès disque local
+      - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup        # logs persistants
 
     command:
       - bash
       - -c
       - |
           apt-get update -qq &&
-          DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y openssh-client tzdata &&
-          apt-get install -y -qq wireguard wireguard-tools rsync cron iproute2 &&
-          wg-quick up wg0 &&
-          cron -f
+          DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y -qq \
+            openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl || true
+          wg-quick up wg0 || true
+          curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
+          chmod +x /backup.sh
+          # backup à midi
+          echo '0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1' | crontab -
+          # nettoyage des logs > 7 jours à 1h du matin
+          echo '0 1 * * * find /var/log/backup -name "*.log" -mtime +7 -delete' >> /tmp/crontab.tmp
+          crontab /tmp/crontab.tmp
+          cron
+          tail -f /dev/null
     environment:
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
