@@ -1,7 +1,7 @@
 services:
   backup:
     image: ubuntu:26.04
-    container_name: ubuntu
+    container_name: backup
     stdin_open: true    # Garde le stdin ouvert (-i)
     tty: true           # Alloue un terminal (-t)
     cap_add:
