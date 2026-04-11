@@ -12,7 +12,7 @@ send_telegram() {
 START=$(date '+%Y-%m-%d %H:%M:%S')
 send_telegram "🔄 Backup démarré à ${START}"
 
-rsync -avz --update -e "ssh -i /root/.ssh/id_ed25519 -o StrictHostKeyChecking=no" \
+rsync -avz --update -e "ssh -i /root/.ssh/key_zimaboard_ronan -o StrictHostKeyChecking=no" \
   "${SOURCE}" "${DEST}" > /tmp/rsync.log 2>&1
 STATUS=$?
 
