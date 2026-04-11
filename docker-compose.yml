@@ -21,3 +21,6 @@ services:
           apt-get install -y -qq wireguard wireguard-tools rsync cron iproute2 &&
           wg-quick up wg0 &&
           cron -f
+    environment:
+      TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
