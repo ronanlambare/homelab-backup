@@ -1,0 +1,23 @@
+services:
+  backup:
+    image: ubuntu:26.04
+    container_name: ubuntu
+    stdin_open: true    # Garde le stdin ouvert (-i)
+    tty: true           # Alloue un terminal (-t)
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro # config wireguard
+      - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh:ro           # clé SSH pour auth SFTP sans mot de passe
+      - /media/HDD-Storage:/hdd-01:ro                                     # accès disque local
+
+    command:
+      - bash
+      - -c
+      - |
+          apt-get update -qq &&
+          DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y openssh-client tzdata &&
+          apt-get install -y -qq wireguard wireguard-tools rsync cron iproute2 &&
+          wg-quick up wg0 &&
+          cron -f
