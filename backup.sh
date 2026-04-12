@@ -11,8 +11,6 @@ send_telegram() {
 START=$(date '+%Y-%m-%d %H:%M:%S')
 send_telegram "🔄 Backup démarré à ${START}"
 
-> "${LOG_FILE}"  # vide le log avant chaque run
-
 rclone sync "${SOURCE}" "${DEST}" \
   --log-file "/tmp/rclone.log" \
   --log-level INFO
