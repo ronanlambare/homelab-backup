@@ -12,12 +12,14 @@ send_telegram() {
 START=$(date '+%Y-%m-%d %H:%M:%S')
 send_telegram "🔄 Backup démarré à ${START}"
 
-rsync -avz --update -e "ssh -i /root/.ssh/key_zimaboard_ronan -o StrictHostKeyChecking=no" \
-  "${SOURCE}" "${DEST}" > /tmp/rsync.log 2>&1
+rclone copy "${SOURCE}" "${DEST}" \
+  --update \
+  --log-file /tmp/rclone.log \
+  --log-level INFO
 STATUS=$?
 
 END=$(date '+%Y-%m-%d %H:%M:%S')
-FILES=$(grep -c '^>' /tmp/rsync.log || echo 0)
+FILES=$(grep -c '^>' /tmp/rclone.log || echo 0)
 
 if [ $STATUS -eq 0 ]; then
   send_telegram "✅ Backup terminé à ${END} — ${FILES} fichier(s) transféré(s)"

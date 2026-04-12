@@ -8,10 +8,11 @@ services:
       - NET_ADMIN
       - NET_RAW
     volumes:
-      - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro # config wireguard
-      - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh              # clé SSH pour auth SFTP sans mot de passe
-      - /media/HDD-Storage:/hdd-01:ro                                     # accès disque local
-      - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup        # logs persistants
+      - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro    # config wireguard
+      - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh                 # clé SSH pour auth SFTP sans mot de passe
+      - /media/HDD-Storage:/hdd-01:ro                                        # accès disque local
+      - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup           # logs persistants
+      - /media/HDD-Storage/docker-data/ubuntu/rclone:/root/.config/rclone:ro # config rclone
 
     command:
       - bash
@@ -19,7 +20,7 @@ services:
       - |
           apt-get update -qq &&
           DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y -qq \
-            openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl || true
+            openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
           chmod +x /backup.sh
