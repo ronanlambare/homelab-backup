@@ -12,7 +12,6 @@ services:
       - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh                 # clé SSH pour auth SFTP sans mot de passe
       - /media/HDD-Storage:/hdd-01:ro                                        # accès disque local
       - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup           # logs persistants
-      - /media/HDD-Storage/docker-data/ubuntu/rclone:/root/.config/rclone    # config rclone
 
     command:
       - bash
@@ -23,6 +22,7 @@ services:
             openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
+          curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/rclone.conf -o /root/.config/rclone
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
