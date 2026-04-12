@@ -12,7 +12,7 @@ services:
       - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh                 # clé SSH pour auth SFTP sans mot de passe
       - /media/HDD-Storage:/hdd-01:ro                                        # accès disque local
       - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup           # logs persistants
-      - /media/HDD-Storage/docker-data/ubuntu/rclone:/root/.config/rclone:ro # config rclone
+      - /media/HDD-Storage/docker-data/ubuntu/rclone:/root/.config/rclone    # config rclone
 
     command:
       - bash
