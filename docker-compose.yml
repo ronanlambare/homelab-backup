@@ -22,7 +22,7 @@ services:
             openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
-          curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/rclone.conf -o /root/.config/rclone
+          curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/rclone.conf -o /root/.config/rclone/rclone.conf
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
