@@ -19,18 +19,23 @@ services:
       - |
           apt-get update -qq &&
           DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y -qq \
-            openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
+            python3-pip python3-full openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
+          curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/bot.py -o /bot.py
           mkdir -p /root/.config/rclone
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/rclone.conf -o /root/.config/rclone/rclone.conf
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
-        
+          pip install python-telegram-bot --break-system-packages --quiet
+          
           echo "0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1" > /tmp/crontab.list
           echo "0 1 * * * find /var/log/backup -name '*.log' -mtime +7 -delete" >> /tmp/crontab.list
           crontab /tmp/crontab.list
+
+          # Lancement du bot en arrière-plan
+          python3 /root/bot.py &
 
           cron
           tail -f /dev/null
