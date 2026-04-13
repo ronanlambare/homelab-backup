@@ -35,7 +35,7 @@ services:
           crontab /tmp/crontab.list
 
           # Lancement du bot en arrière-plan
-          python3 /root/bot.py &
+          python3 /bot.py &
 
           cron
           tail -f /dev/null
