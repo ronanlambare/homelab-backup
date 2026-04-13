@@ -25,20 +25,17 @@ STATUS=$?
 FIN=$(date '+%H:%M le %d/%m/%Y')
 
 if [ $STATUS -eq 0 ]; then
-  # 1. On extrait les stats du transfert actuel
-  STATS=$(tail -n 20 "${LOG_FILE}" | grep -E "Transferred:|Checks:|Elapsed time:" | sed 's/^[[:space:]]*//')
-
-  # 2. On récupère la taille TOTALE du dossier sur le serveur distant
-  # --json permet de récupérer les données proprement avec rclone size
-  TOTAL_SIZE=$(rclone size "${DEST}" --human-readable | grep "Total size" | cut -d: -f2 | sed 's/^[[:space:]]*//')
-
+  # LOGIQUE POUR ISOLER LE DERNIER BLOC :
+  # 1. tac : lit à l'envers
+  # 2. sed : s'arrête dès qu'il voit la ligne de log INFO vide qui marque le début du bloc
+  # 3. tac : remet à l'endroit
+  # 4. grep : filtre les lignes utiles (on ajoute Deleted car tu en as eu un)
+  STATS=$(tac "${LOG_FILE}" | sed -n '1,/INFO  : $/p' | tac | grep -E "Transferred:|Checks:|Deleted:|Elapsed time:" | sed 's/^[[:space:]]*//')
+  
   MESSAGE="✅ Backup terminé à ${FIN}
   
 📊 Rapport du transfert :
-${STATS}
-
-storage_rounded Stockage total distant :
-📦 ${TOTAL_SIZE}"
+${STATS}"
 
   send_telegram "${MESSAGE}"
 else
