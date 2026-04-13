@@ -27,11 +27,11 @@ services:
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
-          # backup à midi
-          echo '0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1' | crontab -
-          # nettoyage des logs > 7 jours à 1h du matin
-          echo '0 1 * * * find /var/log/backup -name "*.log" -mtime +7 -delete' >> /tmp/crontab.tmp
-          crontab /tmp/crontab.tmp
+        
+          echo "0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1" > /tmp/crontab.list
+          echo "0 1 * * * find /var/log/backup -name '*.log' -mtime +7 -delete" >> /tmp/crontab.list
+          crontab /tmp/crontab.list
+
           cron
           tail -f /dev/null
     environment:
