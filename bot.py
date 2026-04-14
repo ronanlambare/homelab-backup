@@ -30,10 +30,10 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await is_authorized(update): return
     text = (
         "🤖 *Commandes disponibles :*\n\n"
-        "📡 `/ping` : Vérifier la connexion vers le serveur\n"
-        "🚀 `/backup` : Lancer manuellement le script de backup\n"
-        "📋 `/status` : Voir le rapport du dernier transfert\n"
-        "❓ `/help` : Afficher ce menu"
+        "/ping : Vérifier la connexion vers le serveur\n"
+        "/backup : Lancer manuellement le script de backup\n"
+        "/status : Voir le rapport du dernier transfert\n"
+        "/help : Afficher ce menu"
     )
     await update.message.reply_markdown(text)
 

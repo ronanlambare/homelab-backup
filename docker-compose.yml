@@ -20,7 +20,7 @@ services:
       - |
           apt-get update -qq &&
           DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y -qq \
-            python3-pip python3-full openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone netcat-openbsd || true
+            python3-pip python3-full python3-telegram-bot openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone netcat-openbsd || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/bot.py -o /bot.py
@@ -29,7 +29,6 @@ services:
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
-          pip install python-telegram-bot --break-system-packages --quiet
 
           # CRUCIAL : Sauvegarder les variables d'environnement pour Cron
           declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
