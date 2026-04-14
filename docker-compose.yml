@@ -7,19 +7,20 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
+    extra_hosts:
+      - "aubin-srv:192.168.1.210"
     volumes:
       - /media/HDD-Storage/docker-data/ubuntu/wireguard:/etc/wireguard:ro    # config wireguard
       - /media/HDD-Storage/docker-data/ubuntu/ssh:/root/.ssh                 # clé SSH pour auth SFTP sans mot de passe
       - /media/HDD-Storage:/hdd-01:ro                                        # accès disque local
       - /media/HDD-Storage/docker-data/ubuntu/logs:/var/log/backup           # logs persistants
-
     command:
       - bash
       - -c
       - |
           apt-get update -qq &&
           DEBIAN_FRONTEND=noninteractive TZ=Europe/Paris apt-get install -y -qq \
-            python3-pip python3-full openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone || true
+            python3-pip python3-full openssh-client tzdata wireguard wireguard-tools rsync cron iproute2 curl rclone netcat-openbsd || true
           wg-quick up wg0 || true
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/backup.sh -o /backup.sh
           curl -fsSL https://raw.githubusercontent.com/ronanlambare/homelab-backup/main/bot.py -o /bot.py
@@ -29,16 +30,20 @@ services:
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
           pip install python-telegram-bot --break-system-packages --quiet
+
+          # CRUCIAL : Sauvegarder les variables d'environnement pour Cron
+          declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
           
-          echo "0 12 * * * /backup.sh >> /var/log/backup/backup.log 2>&1" > /tmp/crontab.list
+          # Création du crontab en important l'environnement
+          echo "0 12 * * * . /container.env; /backup.sh >> /var/log/backup/backup.log 2>&1" > /tmp/crontab.list
           echo "0 1 * * * find /var/log/backup -name '*.log' -mtime +7 -delete" >> /tmp/crontab.list
           crontab /tmp/crontab.list
 
           # Lancement du bot en arrière-plan
           python3 /bot.py &
 
-          cron
-          tail -f /dev/null
+          # Lancer cron au premier plan (-f)
+          cron -f
     environment:
       TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
       TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
