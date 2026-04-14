@@ -29,6 +29,10 @@ services:
           chmod +x /backup.sh
           chmod 700 /root/.ssh
           chmod 600 /root/.ssh/*
+          
+          python3 -m venv /opt/venv
+          /opt/venv/bin/pip install --upgrade pip --quiet
+          /opt/venv/bin/pip install python-telegram-bot --quiet
 
           # CRUCIAL : Sauvegarder les variables d'environnement pour Cron
           declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
@@ -39,7 +43,7 @@ services:
           crontab /tmp/crontab.list
 
           # Lancement du bot en arrière-plan
-          python3 /bot.py &
+          /opt/venv/bin/python3 /bot.py &
 
           # Lancer cron au premier plan (-f)
           cron -f
