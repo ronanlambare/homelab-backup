@@ -1,6 +1,6 @@
 import os
 import subprocess
-from telegram import Update
+from telegram import Update, BotCommand
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # --- CONFIGURATION ET SÉCURITÉ ---
@@ -20,11 +20,23 @@ async def is_authorized(update: Update) -> bool:
     await update.message.reply_text("🚫 Accès non autorisé.")
     return False
 
+# --- CONFIGURATION DU MENU ---
+
+async def post_init(application):
+    """Configure le bouton 'Menu' bleu dans l'interface Telegram."""
+    commands = [
+        BotCommand("help", "Afficher l'aide et les commandes"),
+        BotCommand("ping", "Tester la connexion avec le serveur"),
+        BotCommand("backup", "Lancer le backup maintenant"),
+        BotCommand("status", "Voir le dernier rapport de transfert")
+    ]
+    await application.bot.set_my_commands(commands)
+
 # --- COMMANDES ---
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await is_authorized(update): return
-    await update.message.reply_text("👋 Bot de backup opérationnel et sécurisé !")
+    await update.message.reply_text("👋 Bot de backup opérationnel et sécurisé !\nUtilisez le bouton 'Menu' pour voir les commandes.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await is_authorized(update): return
@@ -42,7 +54,6 @@ async def ping_remote(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await is_authorized(update): return
     await update.message.reply_text(f"📡 Test de connexion vers {REMOTE_HOST}...")
     
-    # Utilisation de netcat (nc)
     check = subprocess.run(["nc", "-z", "-w", "5", REMOTE_HOST, "22"])
     
     if check.returncode == 0:
@@ -55,7 +66,6 @@ async def run_backup(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await is_authorized(update): return
     await update.message.reply_text("🚀 Lancement du backup forcé...")
     try:
-        # Lancement asynchrone pour ne pas bloquer le bot
         subprocess.Popen(["/bin/bash", "/backup.sh"])
     except Exception as e:
         await update.message.reply_text(f"💥 Erreur au lancement : {str(e)}")
@@ -67,7 +77,6 @@ async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if os.path.exists(log_path):
         with open(log_path, 'r') as f:
-            # On récupère les 15 dernières lignes pour voir le résumé rclone
             last_lines = "".join(f.readlines()[-15:])
         await update.message.reply_text(f"📋 *Dernières infos du log :*\n```\n{last_lines}\n```", parse_mode='Markdown')
     else:
@@ -80,7 +89,8 @@ if __name__ == '__main__':
         print("❌ Erreur critique : Variables d'environnement manquantes.")
         exit(1)
 
-    app = ApplicationBuilder().token(TOKEN).build()
+    # L'option post_init permet de lancer set_my_commands au démarrage
+    app = ApplicationBuilder().token(TOKEN).post_init(post_init).build()
     
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
@@ -88,5 +98,5 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("backup", run_backup))
     app.add_handler(CommandHandler("status", status_command))
     
-    print("🚀 Bot en ligne...")
+    print("🚀 Bot en ligne avec menu de commandes...")
     app.run_polling()
